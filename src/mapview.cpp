@@ -26,16 +26,14 @@ namespace Color{     //define colors
     const char* WHITE = "\033[97m"; //white
 
     //bold text
-    const char* BOLD_RED = "\033[1;91m";
-    const char* BOLD_GREEN = "\033[1;92m";
-    const char* BOLD_YELLOW = "\033[1;93m";
-    const char* BOLD_BLUE = "\033[1;94m";
-    const char* BOLD_MAGENTA = "\033[1;95m";
-    const char* BOLD_CYAN = "\033[1;96m";
+    const char* BOLD_CORAL_RED = "\033[1;38;2;255;107;107m";
+    const char* BOLD_LIME_GREEN = "\033[1;38;2;0;200;83m";
+    const char* BOLD_ORANGE = "\033[1;38;2;255;167;38m";
+    const char* BOLD_SKY_BLUE = "\033[1;38;2;100;181;246m";
+    const char* BOLD_LAVENDER = "\033[1;38;2;186;104;200m";
+    const char* BOLD_CYAN = "\033[1;38;2;100;181;246m";
+    const char* BOLD_GREY = "\033[1;38;2;158;158;158m";
     const char* BOLD_WHITE = "\033[1;97m";
-    const char* BOLD_DARK_RED = "\033[38;5;167m";
-    const char* BOLD_DARK_BLUE = "\033[38;5;80m";
-
  }
 
 struct MemoryRegion{    //save the data and mark the data
@@ -224,7 +222,7 @@ void print_colored_maps(const vector<MemoryRegion>& regions)
 {
     using namespace std;
 
-    cout<<Color::BOLD_WHITE<<"Address_range                             "<<"perm  "<<"offset      "<<"LABEL     "<<"path"<<endl;
+    cout<<Color::BOLD_WHITE<<"Address_range                             "<<"perm    "<<"offset      "<<"LABEL      "<<"path"<<endl;
 
     for(const auto& region : regions){
         RegionType type = classify_region(region); 
@@ -268,33 +266,33 @@ void print_colored_maps(const vector<MemoryRegion>& regions)
         }
 
         cout<<Color::RESET;
-        cout<<Color::YELLOW<<"  "<<setw(10)<<region.offset<<"  ";
+        cout<<Color::YELLOW<<"    "<<setw(10)<<region.offset<<"  ";
 
         cout<<Color::RESET;
 
         if(type == RegionType::EXECUTABLE_CODE){
-            cout<<Color::BOLD_GREEN<<"[CODE]  ";
+            cout<<Color::BOLD_LIME_GREEN<<"[CODE]   ";
         }
         else if(type == RegionType::LIBC){
-            cout<<Color::BOLD_YELLOW<<"[LIBC]  ";
+            cout<<Color::BOLD_ORANGE<<"[LIBC]   ";
         }
         else if(type == RegionType::STACK){
-            cout<<Color::BOLD_DARK_RED<<"[STACK]  ";
+            cout<<Color::BOLD_CORAL_RED<<"[STACK]   ";
         }
         else if(type == RegionType::HEAP){
-            cout<<Color::BOLD_DARK_BLUE<<"[HEAP]  ";
+            cout<<Color::BOLD_SKY_BLUE<<"[HEAP]   ";
         }
         else if(type == RegionType::WRITEABLE_DATA){
-            cout<<Color::BOLD_MAGENTA<<"[DATA]  ";
+            cout<<Color::BOLD_LAVENDER<<"[DATA]   ";
         }
         else if(type == RegionType::VDSO){
-            cout<<Color::BOLD_CYAN<<"[VDSO]  ";
+            cout<<Color::BOLD_CYAN<<"[VDSO]   ";
         }
         else{
-            cout<<Color::RESET<<"[OTHER]  ";
+            cout<<Color::BOLD_GREY<<"[OTHER]   ";
         }
 
-        cout<<Color::RESET<<"  ";
+        cout<<Color::RESET<<"   ";
 
         cout<<region.pathname<<endl;
     }

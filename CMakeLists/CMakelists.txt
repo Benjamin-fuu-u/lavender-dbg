@@ -1,30 +1,24 @@
-#指定 CMake 最低版本需求
+
 #minimum need for version
 cmake_minimum_required(VERSION 3.16)
 
-#定義專案名稱 mintdbg，並說明這個專案使用的語言是 C++
 # project name called "linux-pwn-lab" using C++
 project(linux-pwn-lab CXX)
 
-#設定 C++ 標準為 C++17
-set(CMAKE_CXXSTANDARD 17)
 #C++ version C++17
 set(CMAKE_CXX_STANDARD 17)
 
-#要求一定要使用 C++17（避免編譯器不支援時默默退回舊標準）
-set(CMAKE_CXX_STANDARD_REQUIRE ON)
 #must use C++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#建立一個可執行檔（exe），名字叫 linux-pwn-lab 原始碼檔案是 src/hello.cpp
-add_executable(linux-pwn-lab src/hello.cpp)
 #builed an ".exe" called hello , the origin code is hello.cpp
 add_executable(hello src/hello.cpp)
 
-#把編譯出來的 linux-pwn-lab 執行檔放到 build/ 目錄底下
-#CMAKE_BINARY_DIR 就是你 configure 時選的 build 資料夾
-set_target_properties(linux-pwn-lab PROPERTIES 
-add_executable(mapview src/mapview.cpp)
+add_executable(mapview
+                 src/main.cpp
+                 src/process/process.cpp
+                 src/memory/memory.cpp
+              )
 
 # push the .exe under build
 set_target_properties(hello PROPERTIES
