@@ -1,4 +1,3 @@
-
 #minimum need for version
 cmake_minimum_required(VERSION 3.16)
 
@@ -18,6 +17,7 @@ add_executable(mapview
                  src/main.cpp
                  src/process/process.cpp
                  src/memory/memory.cpp
+                 src/elf/elf_view.cpp
               )
 
 # push the .exe under build
