@@ -94,7 +94,7 @@ vector<Symbol> read_symbols(const string &target_path)
 
 void print_symbol_address(const vector<Symbol> &symbols, uint64_t base_address)
 {
-    cout << "==============" << Color::YELLOW << " Function Address " << Color::RESET << "================" << endl;
+    cout << "======================" << Color::YELLOW << " Function Address " << Color::RESET << "========================" << endl;
 
     cout << "function address         function name" << endl;
 
@@ -107,7 +107,7 @@ void print_symbol_address(const vector<Symbol> &symbols, uint64_t base_address)
     {
         uint64_t actual = base_address + s.offset;
 
-        cout << Color::BOLD_SKY_BLUE << " 0x" << hex << left << setw(16) << actual;
+        cout << Color::BOLD_DARK_BLUE << " 0x" << hex << left << setw(16) << actual;
         cout << Color::RESET << " : ";
         if (s.is_plt)
             cout << Color::BOLD_LIME_GREEN;
@@ -115,19 +115,19 @@ void print_symbol_address(const vector<Symbol> &symbols, uint64_t base_address)
         else if (s.name[0] == '_')
             cout << Color::BOLD_GREY;
         else
-            cout << Color::BOLD_MAGENTA;
+            cout << Color::BOLD_CORAL_RED;
 
         cout << s.name << Color::RESET << endl;
     }
     cout << dec << Color::RESET << endl;
 }
 
-uint64_t find_symbol_offset(const vector<Symbol> &symbols, const string &name) // find current function affresss
+int64_t find_symbol_offset(const vector<Symbol> &symbols, string &name) // find current function affresss
 {
     for (const auto &s : symbols)
     {
         if (s.name == name)
             return s.offset;
     }
-    return 0;
+    return -1;
 }

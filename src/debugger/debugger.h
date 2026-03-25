@@ -1,4 +1,4 @@
-#pragma once
+#pragma
 #include <cstdint>
 #include <sys/types.h>
 
@@ -9,8 +9,10 @@ public:
     void set_breakpoint(uint64_t addr);
     bool run_to_breakpoint();
     bool single_step();
+    bool stepover();
     void print_registers();
-    void disassemble_at_rip();
+    void disassemble_at_rip(int count);
+    void print_stack();
 
 private:
     pid_t m_pid;        // child program ID

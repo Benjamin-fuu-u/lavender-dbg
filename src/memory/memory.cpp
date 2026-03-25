@@ -128,15 +128,15 @@ void print_colored_maps(const vector<MemoryRegion> &regions)
 {
     using namespace std;
 
-    cout << "==================" << Color::YELLOW << " Memory Mapping " << Color::RESET << "=================" << endl;
+    cout << "==================" << Color::YELLOW << " Memory Mapping " << Color::RESET << "==================" << endl;
 
-    cout << Color::BOLD_WHITE << "Address_range                             " << "perm    " << "offset      " << "LABEL      " << "path" << endl;
+    cout << Color::BOLD_WHITE << "Address_range                         " << "perm    " << "offset      " << "LABEL      " << "path" << endl;
 
     for (const auto &region : regions)
     {
         RegionType type = classify_region(region);
 
-        cout << Color::BOLD_CYAN << left << setw(18) << region.start_address << " - " << left << setw(18) << region.end_address;
+        cout << Color::BOLD_DARK_BLUE << left << setw(16) << region.start_address << " - " << left << setw(16) << region.end_address;
 
         cout << "   ";
 
@@ -163,7 +163,7 @@ void print_colored_maps(const vector<MemoryRegion> &regions)
         cout << Color::RESET;
         if (region.is_executable)
         {
-            cout << Color::CYAN << "x";
+            cout << Color::BOLD_DARK_BLUE << "x";
         }
         else
         {
@@ -199,7 +199,7 @@ void print_colored_maps(const vector<MemoryRegion> &regions)
         }
         else if (type == RegionType::HEAP)
         {
-            cout << Color::BOLD_SKY_BLUE << "[HEAP]   ";
+            cout << Color::BOLD_ORANGE << "[HEAP]   ";
         }
         else if (type == RegionType::WRITEABLE_DATA)
         {
@@ -207,7 +207,7 @@ void print_colored_maps(const vector<MemoryRegion> &regions)
         }
         else if (type == RegionType::VDSO)
         {
-            cout << Color::BOLD_CYAN << "[VDSO]   ";
+            cout << Color::BOLD_DARK_BLUE << "[VDSO]   ";
         }
         else
         {
@@ -224,7 +224,7 @@ uint64_t get_base_address(const vector<MemoryRegion> &regions, const string &tar
 {
     string filename = target_path;
     size_t pos = target_path.rfind('/'); // search the "/" frome the end of path
-    if (pos != string::npos)
+    if (!pos != string::npos)
         filename = target_path.substr(pos + 1); // cut the back word
 
     for (const auto &region : regions)

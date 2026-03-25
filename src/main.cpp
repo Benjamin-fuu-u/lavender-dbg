@@ -1,13 +1,14 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <sstream>
+#include <string>
 
 #include "process/process.h"
 #include "memory/memory.h"
 #include "common/color.h"
 #include "symbols/symbols.h"
 #include "debugger/debugger.h"
-#include "debugger/cli.h"
 
 using namespace std;
 
@@ -36,28 +37,129 @@ int main(int argc, char *argv[])
     cout << endl;
     print_symbol_address(symbols, base);
 
-    uint64_t main_off = find_symbol_offset(symbols, "main");
-
-    if (main_off == 0)
-    {
-        cerr << "[Debugger] cannot find main  , Debugger stop" << endl;
-        clean_child_program(child_pid);
-        return 1;
-    }
-
-    cerr << "The ptogram stop at main" << endl;
-
     MiniDebugger dbg(child_pid);
-    dbg.set_breakpoint(base + main_off);
 
-    if (!dbg.run_to_breakpoint())
+    string s;
+    cout << "====================== " << Color::YELLOW << "USAGE" << Color::RESET << " ======================" << endl;
+    cout << "next or n                                      : show the next  10 instruction" << endl;
+    cout << "single (steps) or s (steps)                    : step through next (steps) instruction" << endl;
+    cout << "breakpoint (address or function name) or bp    : set breakpoint at function name or address" << endl;
+    cout << "continue or c                                  : go to the breakpoint" << endl;
+    cout << "quit or q           : quit the program" << endl;
+
+    cout << endl
+         << Color::BOLD_CORAL_RED << "Suggest set breakpoint at main " << Color::RESET << endl
+         << endl;
+
+    cout << Color::YELLOW << ">>" << Color::RESET;
+    bool exited = false;
+    while (getline(cin, s))
     {
-        clean_child_program(child_pid);
-        cerr << "[Debugger]: cannot stop at main" << endl;
-        return 1;
-    }
+        istringstream iss(s);
+        string cmd;
+        iss >> cmd;
 
-    run_debugger_cli(dbg, symbols, base);
+        if (cmd == "next" || cmd == "n")
+        {
+            cout << "==================" << Color::YELLOW << " Current and next nine instruction " << Color::RESET << "==================" << endl;
+            dbg.disassemble_at_rip(10);
+        }
+        else if (cmd == "quit" || cmd == "q")
+        {
+            break;
+        }
+        else if (cmd == "single" || cmd == "s")
+        {
+            string arg;
+            if (!(iss >> arg))
+            {
+                if (!dbg.stepover())
+                {
+                    break;
+                }
+                dbg.disassemble_at_rip(1);
+                continue;
+            }
+
+            int times = stoi(arg);
+            for (int i = 0; i < times; i++)
+            {
+                if (!dbg.stepover())
+                {
+                    exited = true;
+                    break;
+                }
+                dbg.disassemble_at_rip(1);
+            }
+        }
+        else if (cmd == "regs")
+        {
+            cout << "==================" << Color::YELLOW << " Current and next nine instruction " << Color::RESET << "==================" << endl;
+            dbg.disassemble_at_rip(10);
+            dbg.print_registers();
+            dbg.print_stack();
+        }
+
+        else if (cmd == "breakpoint" || cmd == "bp")
+        {
+            string arg;
+            if (!(iss >> arg))
+            {
+                cout << "[Debugger] Error invaled function address or name" << endl;
+                continue;
+            }
+
+            uint64_t bp_addr = 0;
+
+            if (arg.size() > 2 && arg[0] == '0' && (arg[1] == 'x') || arg[1] == 'X') // if isʼs a function address itʼs start as 0x or 0X
+            {
+                try
+                {
+                    bp_addr = stoull(arg, nullptr, 16);
+                } // try if it can change hex if not continue
+                catch (...)
+                {
+                    cout << "[Debugger] Error invalied address : " << arg << endl;
+                    continue;
+                }
+            }
+            else
+            {
+                int64_t offset = find_symbol_offset(symbols, arg);
+                if (offset < 0)
+                {
+                    cout << "[Debugger] Error: Symbol not found : " << arg << endl;
+                    continue;
+                }
+                bp_addr = base + static_cast<uint64_t>(offset);
+            }
+            dbg.set_breakpoint(bp_addr);
+        }
+
+        else if (cmd == "continue" || cmd == "c")
+        {
+            if (!dbg.run_to_breakpoint())
+            {
+                cout << "[Debugger] Program exited" << endl;
+                break;
+            }
+            dbg.disassemble_at_rip(1);
+            cout << "==================" << Color::YELLOW << " Current and next nine instruction " << Color::RESET << "==================" << endl;
+            dbg.disassemble_at_rip(10);
+            dbg.print_registers();
+            dbg.print_stack();
+        }
+        else
+        {
+            cout << "[Error] : No such commmand" << endl;
+        }
+        cout << Color::YELLOW << ">>" << Color::RESET;
+
+        if (exited)
+        {
+            break;
+        }
+    }
 
     clean_child_program(child_pid);
     return 0;
