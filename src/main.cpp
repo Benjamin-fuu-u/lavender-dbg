@@ -133,8 +133,8 @@ int main(int argc, char *argv[])
             }
             dbg.disassemble_at_rip(1);
             cout << Color::BOLD_LAVENDER
-                 << "=== [ " << Color::YELLOW << "Current and next six instruction" << Color::BOLD_LAVENDER
-                 << " ] ================================================================="
+                 << "=== [ " << Color::YELLOW << "Current and next five instruction" << Color::BOLD_LAVENDER
+                 << " ] ==============================================================="
                  << Color::RESET << endl;
 
             dbg.disassemble_at_rip(6);
