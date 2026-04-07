@@ -80,7 +80,18 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            int times = stoi(arg);
+            int times;
+            try
+            {
+                times = stoi(arg);
+            }    
+            catch(...)
+            {
+                cout<<"invalied steps"<<endl;
+                cout<<Color::YELLOW<<">>";
+                continue;
+            }
+            
             for (int i = 0; i < times; i++)
             {
                 if (!dbg.stepover())
