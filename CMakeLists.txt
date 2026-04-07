@@ -14,7 +14,7 @@ find_package(PkgConfig REQUIRED)        #find capstone installed or not   if not
 pkg_check_modules(CAPSTONE REQUIRED capstone)   #go to find capstone and set capstone
 
 #builed an ".exe" called hello , the origin code is hello.cpp
-add_executable(target src/hello.c)
+add_executable(target src/target.c)
 
 add_executable(lavender
                  src/main.cpp
