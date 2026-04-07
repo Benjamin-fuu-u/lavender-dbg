@@ -84,10 +84,10 @@ int main(int argc, char *argv[])
             try
             {
                 times = stoi(arg);
-            }    
+            }
             catch(...)
             {
-                cout<<"invalied steps"<<endl;
+                cout<<"[Debugger] Error: invalied steps"<<endl;
                 cout<<Color::YELLOW<<">>";
                 continue;
             }
