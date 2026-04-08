@@ -1,9 +1,9 @@
 #pragma
 #include <cstdint>
 #include <sys/types.h>
-#include<vector>
-#include<sys/types.h>
-#include"../symbols/symbols.h"
+#include <vector>
+#include <sys/types.h>
+#include "../symbols/symbols.h"
 
 class MiniDebugger
 {

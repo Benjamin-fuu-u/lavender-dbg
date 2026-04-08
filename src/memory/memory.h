@@ -32,6 +32,7 @@ enum class RegionType
     WRITEABLE_DATA, // the data can write
     READ_ONLY,
     VDSO,
+    DATA,
     // something the program should know  , it can reduce the time that the program ask the computer
     OTHER
 };
