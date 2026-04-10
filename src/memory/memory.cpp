@@ -121,11 +121,6 @@ RegionType classify_region(const MemoryRegion &region) // give each a classficat
     {
         return RegionType::DATA;
     }
-
-    else if (region.is_readable && !region.is_writeable && !region.is_executable)
-    {
-        return RegionType::READ_ONLY;
-    }
     return RegionType::OTHER;
 }
 
@@ -216,10 +211,6 @@ void print_colored_maps(const vector<MemoryRegion> &regions)
         else if (type == RegionType::VDSO)
         {
             cout << Color::BOLD_DARK_BLUE << "[VDSO]   ";
-        }
-        else if (type == RegionType::READ_ONLY)
-        {
-            cout << Color::BOLD_MAGENTA << "[READ]   ";
         }
         else
         {
