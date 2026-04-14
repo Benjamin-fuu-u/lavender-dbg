@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
             string arg;
             if (!(iss >> arg))
             {
-                if (!dbg.stepover())
+                if (!dbg.stepover(symbols, base))
                 {
                     break;
                 }
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < times; i++)
             {
-                if (!dbg.stepover())
+                if (!dbg.stepover(symbols, base))
                 {
                     exited = true;
                     break;

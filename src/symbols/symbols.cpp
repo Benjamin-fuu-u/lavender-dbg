@@ -25,8 +25,6 @@ static void read_local_symbols(const string &path, vector<Symbol> &result)
     { // keep read until EOF or \n or 512 char
         if (strstr(line, "F") == nullptr)
             continue; // not function
-        if (strstr(line, ".init") || strstr(line, ".fini"))
-            continue; // start or end function
 
         uint64_t addr = 0;
         if (sscanf(line, "%lx", &addr) != 1 || addr == 0)

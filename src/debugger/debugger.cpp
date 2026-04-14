@@ -229,7 +229,7 @@ void MiniDebugger::print_stack()
     }
 }
 
-bool MiniDebugger::stepover()
+bool MiniDebugger::stepover(vector<Symbol> symbols, uint64_t base_address)
 {
     struct user_regs_struct regs;
     ptrace(PTRACE_GETREGS, m_pid, nullptr, &regs);
@@ -256,11 +256,26 @@ bool MiniDebugger::stepover()
 
     bool isCall = (insn[0].id == X86_INS_CALL);
     uint64_t nextaddr = rip + insn[0].size;
+    uint64_t call_target = 0;
+    if (buf[0] == 0xE8)
+    {
+        int32_t rel;
+        memcpy(&rel, buf + 1, 4);
+        call_target = rip + 5 + rel;
+    }
     cs_free(insn, count);
     cs_close(&handle);
 
     if (isCall)
     {
+        for (auto &s : symbols)
+        {
+            if (s.offset + base_address == call_target)
+            {
+                cout << Color::BOLD_LIGHT_RED << "Call -> [ " << s.name << " ]" << endl;
+                break;
+            }
+        }
         set_breakpoint(nextaddr);
         return run_to_breakpoint();
     }

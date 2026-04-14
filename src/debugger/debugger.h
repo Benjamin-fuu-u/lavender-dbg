@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 #include <cstdint>
 #include <sys/types.h>
 #include <vector>
@@ -12,7 +12,7 @@ public:
     void set_breakpoint(uint64_t addr);
     bool run_to_breakpoint();
     bool single_step();
-    bool stepover();
+    bool stepover(vector<Symbol> symbol, uint64_t base_address);
     void print_registers();
     void disassemble_at_rip(int count);
     void print_stack();
