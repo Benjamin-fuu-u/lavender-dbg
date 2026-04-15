@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
                 dbg.disassemble_at_rip(1);
                 dbg.print_registers();
             }
+            cout << Color::YELLOW << ">>" << Color::RESET;
         }
 
         // set breakpoint
@@ -213,6 +214,7 @@ int main(int argc, char *argv[])
             dbg.disassemble_at_rip(6);
             dbg.print_registers();
             dbg.print_stack();
+            cout << Color::YELLOW << ">>" << Color::RESET;
         }
 
         // invalied command
