@@ -5,25 +5,28 @@
 #include <sys/types.h>
 #include "../symbols/symbols.h"
 
+// Most need pid_t, so wrap in class
 class MiniDebugger
 {
 public:
-    MiniDebugger(pid_t pid); // get pid when the class start
-    void set_breakpoint(uint64_t addr);
-    bool run_to_breakpoint();
-    bool single_step();
-    bool stepover(vector<Symbol> symbol, uint64_t base_address);
-    void print_registers();
-    void disassemble_at_rip(int count);
-    void print_stack();
+    MiniDebugger(pid_t pid);
+    void set_breakpoint(uint64_t addr);                          // Set breakpoint
+    bool run_to_breakpoint();                                    // Run until hit breakpoint
+    bool single_step();                                          // Single step execution
+    bool stepover(vector<Symbol> symbol, uint64_t base_address); // Smart single step that skips call
+    void print_registers();                                      // Print registers
+    void disassemble_at_rip(int count);                          // Disassemble current and future code
+    void print_stack();                                          // Print stack
 
 private:
-    pid_t m_pid;        // child program ID
-    uint64_t m_bp_addr; // breakpoint address
-    long m_bp_backup;   // breakpoint backup
-    bool m_bp_set;      // set breakpoint [Y/N]
+    pid_t m_pid;
+    uint64_t m_bp_addr;
+    long m_bp_backup;
+    bool m_bp_set;
 
+    // Get value at target memory location
     void read_memory(uint64_t addr, uint8_t *buf, size_t len);
-    // read where , where store the result(uint8_t is one byte) , read how many
-    uint64_t get_rip(); // where the program(get RIP)
+
+    // Get current RIP
+    uint64_t get_rip();
 };
