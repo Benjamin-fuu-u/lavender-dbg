@@ -24,6 +24,19 @@ int main(int argc, char *argv[])
     // first argument : target path
     const char *target_path = argv[1];
 
+    cout << Color::BOLD_LAVENDER << R"(
+  _                         _             _____  ____   _____ 
+ | |                       | |           |  __ \|  _ \ / ____|
+ | |     __ ___   _____  __| | ___ _ __  | |  | | |_) | |  __ 
+ | |    / _` \ \ / / _ \/ _` |/ _ \ '__| | |  | |  _ <| | |_ |
+ | |___| (_| |\ V /  __/ (_| |  __/ |    | |__| | |_) | |__| |
+ |______\__,_| \_/ \___|\__,_|\___|_|    |_____/|____/ \_____|
+                                                              
+                                                              
+             [ mini debugger ]                                 
+)" << Color::RESET
+         << endl;
+
     // start child program and return child'spid
     pid_t child_pid = start_child_and_father_program(target_path);
 
@@ -113,7 +126,7 @@ int main(int argc, char *argv[])
             catch (...)
             {
                 cout << "[Debugger] Error: invalid steps" << endl;
-                cout << Color::YELLOW << ">>";
+                cout << Color::YELLOW << ">>" << Color::RESET;
                 continue;
             }
 
@@ -140,6 +153,7 @@ int main(int argc, char *argv[])
             if (!(iss >> arg))
             {
                 cout << "[Debugger] Error invaled function address or name" << endl;
+                cout << Color::YELLOW << ">>" << Color::RESET;
                 continue;
             }
 
@@ -156,6 +170,7 @@ int main(int argc, char *argv[])
                 catch (...)
                 {
                     cout << "[Debugger] Error invalied address : " << arg << endl;
+                    cout << Color::YELLOW << ">>" << Color::RESET;
                     continue;
                 }
             }
@@ -170,6 +185,7 @@ int main(int argc, char *argv[])
                 if (offset < 0)
                 {
                     cout << "[Debugger] Error: Symbol not found : " << arg << endl;
+                    cout << Color::YELLOW << ">>" << Color::RESET;
                     continue;
                 }
 
@@ -203,6 +219,8 @@ int main(int argc, char *argv[])
         else
         {
             cout << "[Error] : No such command" << endl;
+            cout << Color::YELLOW << ">>" << Color::RESET;
+            continue;
         }
 
         // when stepover hits brealpoint , break here
