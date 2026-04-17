@@ -30,7 +30,7 @@ pid_t start_child_and_father_program(const char *target_path) // pid_t = int
     // if pid = -1 , error occured
     if (pid == -1)
     {
-        cerr << "Fork error" << strerror(errno) << endl;
+        cerr << "Fork error " << strerror(errno) << endl;
         return -1;
     }
 
