@@ -42,7 +42,7 @@ pid_t start_child_and_father_program(const char *target_path) // pid_t = int
         char *args[] = {const_cast<char *>(target_path), nullptr};
 
         // fork into target_path state , if success , code below will not run
-        // target path 是for kernel , args for child program
+        // target path is for kernel , args for child program
         execv(target_path, args);
 
         cerr << "Errno : " << strerror(errno) << endl;

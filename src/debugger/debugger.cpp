@@ -67,7 +67,7 @@ void MiniDebugger::set_breakpoint(uint64_t addr)
 bool MiniDebugger::run_to_breakpoint()
 {
     // Run until hit 0xcc
-    ptrace(PTRACE_CONT, m_pid, nullptr, nullptr); //"CONT" run until breakpoint
+    ptrace(PTRACE_CONT, m_pid, nullptr, nullptr);
 
     // Wait for hit 0xcc
     int status;
@@ -76,6 +76,12 @@ bool MiniDebugger::run_to_breakpoint()
     if (WIFSIGNALED(status))
     {
         cout << "[Debugger] : Program exited with code " << WTERMSIG(status) << endl;
+        return false;
+    }
+
+    if (WIFEXITED(status))
+    {
+        cout << "[Debugger] : Program exit" << endl;
         return false;
     }
 
