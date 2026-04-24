@@ -1,66 +1,114 @@
 # Lavender dbg
-![Lavender 封面](https://hackmd.io/_uploads/HyjEgNmabe.png)
+![Lavender Cover](https://hackmd.io/_uploads/HyjEgNmabe.png)
 
 **Table of Contents**
 
-* Introduction
-* Core Design and Code Analysis
-* Actual Execution Demo
-* Architecture Overview
-* How You Can Expand It
-* Quick Start
-* Future Plans & Conclusion
-
 # Introduction
-**What is this **
-Can high school students develop a debugger? Lavender dbg is my answer. It is a basic debugger that runs on Linux and is implemented in C++, aiming to create a debugger that is easy to read and expand.
 
-**GitHub Link:**
-https://github.com/Benjamin-fuu-u/lavender-dbg
+**What is this**
+Can high school students develop a debugger?
+Lavender dbg is my answer. It is a basic debugger, running on Linux and implemented in C++, aiming to create a debugger that is easy to read and expand.
 
-**This project was assisted by AI during production, and the author is not a native English speaker, so please assist with AI translation**
+In addition, Lavender's main function is to help users analyze the logic behind the program, including maps output, ELF file parsing, and assembly output. For details, please refer to: **Core Features**
 
-**Suitable for:**
+**GitHub Link:**https://github.com/Benjamin-fuu-u/lavender-dbg
 
-* Beginners in system programming
-* Users who want to understand debugger principles
-* People curious about underlying principles
+**This project was assisted by AI during production, and the author is not a native English speaker, so the writer ask AI to assist in translation.**
 
+**Suitable for**
 
-**Not suitable for:**
+**Not suitable for**
 
-* Users who need professional features
-* Penetration testing or CTF competition environments
+- Beginners in system programming
 
+- Users who need professional features
+
+- Users who want to understand debugger principles
+
+- Penetration testing or CTF competition environments
+- People curious about underlying principles
 
 **Highlights**
 
-* The code is easy to read and understand, clearly demonstrating the underlying principles of the debugger
-* Clear architecture, easy to expand, functions can be added or removed according to personal needs
-* Lays the foundation for system programming
+- Code is readable and easy to understand, clearly demonstrating the underlying principles of the debugger
+- Clear architecture, easy to expand, can add or remove features according to your needs
+- Lays the foundation for system programming
 
+# Environment Requirements
 
-**Core Functions:**
+**Environment Requirements**
 
-**Breakpoint Setting**
-    
-    Supports setting breakpoints via hexadecimal and function names
-    After setting a breakpoint, it directly jumps to the breakpoint
-    When a breakpoint is triggered, it automatically displays: the next 5 lines of disassembly, stack,and register information
-    
-**Single Step Execution**
-    
-    Supports custom step count
-    Intelligently skips when encountering call
-    
-**Additionally, you can modify the code according to your needs to achieve custom functions**
+- Operating System `Linux` (recommended `Linux MINT`)
+- Compilation tools `g++(C++17)`, `gcc`
+- Build tools `CMake 3.16+`
+- External packages `capstone`, `objdump`
 
-# Code Highlights
+**File Setup**
 
-**Launching Subprocess**
-The debugger and the target program are two independent processes. Therefore, I use fork() to create a subprocess, then use execv() to replace the subprocess with the target program, and finally have the subprocess call PTRACE_TRACEME to request tracking from the parent process by the kernel.
-~~~cpp=
- pid_t pid = fork();
+```
+lavender dbg/
+├── CMakeLists.txt
+└── src/
+    ├── main.cpp
+    ├── target.c
+    └── ...
+```
+
+Please set up the files as shown above and install the following tools.
+
+**Installation Commands**
+
+```
+sudo apt update
+sudo apt install g++ gcc
+sudo apt install cmake            #cmake
+sudo apt install binutils         #objdump
+sudo apt install libcapstone-dev  #capstone
+```
+
+Then create a `build` folder under lavender dbg
+
+```
+mkdir build
+cd build
+cmake ..  # First time must configure CMake, cmake is in the parent directory
+make      #compile program
+```
+
+**In the future, if modifying CMake, enter `cmake`. If changing program content, enter `make`**
+
+Run
+
+```
+./lavender ./target
+```
+
+# Core Features
+
+Lavender dbg is a debugger used to help users understand the underlying principles behind programs, and can perform the following functions:
+**1. Maps output**
+At the beginning of the program, it prints the `maps` of the child process just started; you can also modify the settings to view during program runtime.
+**2. Function address output**
+The program automatically prints all internal, external, and system functions when the child process starts, but does not include dynamic link libraries like `libc.so`.
+**3. CLI output; this program provides two functions: setting breakpoints and single-step executionBreakpoint setting**
+
+**breakpoint** 
+Can use hexadecimal or function names; after setting a breakpoint, it automatically goes to the breakpoint and displays `stack`, `register`, and the next five lines of assembly.
+
+**Single-step execution**
+Can customize the number of steps, and automatically skips when encountering `call`.
+
+**You can refer to the actual execution demo**
+
+**You can also write your own custom functions**
+
+# Core Design and Code Analysis
+
+**Starting Child Process**
+The debugger and target program are two independent processes. Therefore, I use `fork()` to copy the child process, then use `execv()` to replace the child process with the target program, and finally let the child process call `PTRACE_TRACEME` to request the kernel to be traced by the parent.
+
+```cpp
+pid_t pid = fork();
 
 // if pid = -1 , error occured
 if (pid == -1)
@@ -83,20 +131,20 @@ else if (pid == 0)
     cerr << "Errno : " << strerror(errno) << endl;
     exit(1);
 }
-~~~
+```
 
-**Breakpoint Recovery** 
-Design When setting a breakpoint, I replace the first byte of the target address with 0xcc, then use PTRACE_CONT to let the program run at full speed. When the CPU hits 0xcc, it automatically pauses and triggers SIGTRAP.
+**Breakpoint Recovery Design**
+When setting a breakpoint, I replace the first `byte` of the target address with `0xcc`, then use `PTRACE_CONT` to let the program run at full speed; when the CPU hits `0xcc`, it automatically pauses and triggers `SIGTRAP`.
 
-After the breakpoint is triggered, three things need to be done:
+**After the breakpoint is triggered, three things need to be done:**
 
 1. Write back the backed-up machine code from when the breakpoint was set
-2. Pull back the RIP (when the CPU executes to 0xcc, the RIP has already pointed to the next instruction)
-3. Write back the current registers
+2. Pull back the `RIP` (when the CPU executes to `0xcc`, `RIP` has already pointed to the next instruction)
+3. Write back the current `registers`
 
-~~~cpp=
+```cpp
 // Run until hit 0xcc
-ptrace(PTRACE_CONT, m_pid, nullptr, nullptr); 
+ptrace(PTRACE_CONT, m_pid, nullptr, nullptr);
 
 // Wait for hit 0xcc
 int status;
@@ -121,19 +169,19 @@ ptrace(PTRACE_SETREGS, m_pid, nullptr, &regs);
 
 cout << Color::BOLD_CORAL_RED << "[Debugger] Hit breakpoint at 0x" << hex << m_bp_addr << dec << Color::RESET << endl
      << endl;
-~~~
+```
 
-**Smart Stepover:** 
-Automatically Skip on Call In the stepover function design, it automatically skips encountered call functions and displays where it jumps next. Therefore, I passed in the symbols storing each function address (obtained from symbols.cpp), and due to ASLR randomization, the symbols stored are only offsets, and the base_address must be added to get the real function address.
+**Smart Stepover, Automatically Skip on Call**
+In the stepover function design, it automatically skips encountered `call` functions and displays where to jump next. Therefore, I passed in the symbols storing each function address (obtained by `symbols.cpp`), then, due to ASLR randomization, the symbols store only offsets, and must add `base_address` to get the real address of the function.
 
 **We need to do the following four things:**
 
-1. Determine if the instruction is call (X86_INS_CALL)
-2. If it is call, set a breakpoint at the next instruction after this one (after the jump, return will come back here)
-3. Check in symbols if there is a function name corresponding to that address (if in libc, it will show not found)
+1. Determine if the instruction is `call(X86_INS_CALL)`
+2. If it is a call, set a breakpoint at the next instruction of this instruction (after jumping, `return` will come back here)
+3. Check if there is a function name corresponding to the address in symbols **(if it is `libc` etc., it will show not found)**
 4. Run to the breakpoint
 
-~~~cpp=
+```cpp
  bool isCall = (insn[0].id == X86_INS_CALL);
 
 // Place to return after call
@@ -164,147 +212,147 @@ if (isCall)
     set_breakpoint(nextaddr);
     return run_to_breakpoint();
 }
-~~~
+```
 
 # Actual Execution Demo
 
 **Maps Output**
-![maps輸出](https://hackmd.io/_uploads/rk4BuP1pWg.png)
+
+![Maps Output](https://hackmd.io/_uploads/rk4BuP1pWg.png)
+
+From the image above, you can see the maps, stack, vdso, code, and other sections at the beginning of program startup.
+
+**Section Types**
+
+| Item | Description |
+| --- | --- |
+| **code** | Mostly code |
+| **stack** | Stack |
+| **vdso** | Shared block, providing commonly used modules directly to the program |
+| **heap** | Heap |
+| **DATA** | Mostly storing data |
+| **libc\.so** | Standard C library |
 
 **Breakpoint Output**
-![breakpoint main](https://hackmd.io/_uploads/rJTr_PJa-g.png)
 
-**Single Step Output** 
-![call puts print hello](https://hackmd.io/_uploads/SkzLuDJTZg.png)
+![Breakpoint Main](https://hackmd.io/_uploads/rJTr_PJa-g.png)
 
-**Also Supports Subprocess Input**
-![lavender 輸入名字](https://hackmd.io/_uploads/SyJaHDzTWx.png)
+This is the information displayed by Lavender when setting a breakpoint at main, including the next five lines of code (Current and next five instruction), registers, stack, and other information.
 
-![lavender 輸出 hello ,名字](https://hackmd.io/_uploads/Hy_TSvf6We.png)
+**Register Types**
+
+| Register | Description | Register | Description |
+| --- | --- | --- | --- |
+| **RIP** | Current instruction position | **RDI** | Register 1 |
+| **RSP** | Stack top | **RSI** | Register 2 |
+| **RBP** | Stack bottom | **RDX** | Register 3 |
+| **RAX** | Return value | **ZF** | Judgment flag |
+
+**Single Step Output**
+
+![Call Puts Print Hello](https://hackmd.io/_uploads/SkzLuDJTZg.png)
+
+From the image above, you can see the machine code line by line; each line of machine code displays registers, with changes highlighted. If it is a call, it displays the called function name (but if it is libc etc., it will not find it, will not display function name).
+
+**Also Supports Child Process Input**
+
+![Lavender Input Name](https://hackmd.io/_uploads/SyJaHDzTWx.png)
+
+This is the situation when the child process handled by Lavender has input; you can see inputting the name "lavender".
+
+![Lavender Output Hello, Name](https://hackmd.io/_uploads/Hy_TSvf6We.png)
+
+You can see outputting the name "lavender".
 
 # Architecture Overview
+
 **Project Architecture Diagram**
-    
-    lavender-dbg/
-        ├── CMakeLists.txt
-        └── src/
-        ├── main.cpp             # Module integration and CLI
-        ├── target.c             # C language target program
-        ├── common/
-        │   └── color.h          # Output color definitions
-        ├── debugger/            # Debugger module
-        │   ├── debugger.cpp
-        │   └── debugger.h
-        ├── memory/              # /proc/maps reading
-        │   ├── memory.cpp
-        │   └── memory.h
-        ├── process/             # Subprocess startup and control
-        │   ├── process.cpp
-        │   └── process.h
-        └── symbols/             # ELF symbol parsing
-            ├── symbols.cpp
-            └── symbols.h
-    
+
+```
+lavender-dbg/
+├── CMakeLists.txt
+└── src/
+    ├── main.cpp             # Module integration and CLI
+    ├── target.c             # Target program in C
+    ├── common/
+    │   └── color.h          # Output color definitions
+    ├── debugger/            # Debugger module
+    │   ├── debugger.cpp
+    │   └── debugger.h
+    ├── memory/              # /proc/maps reading
+    │   ├── memory.cpp
+    │   └── memory.h
+    ├── process/             # Subprocess launching and control
+    │   ├── process.cpp
+    │   └── process.h
+    └── symbols/             # ELF symbol parsing
+        ├── symbols.cpp
+        └── symbols.h
+```
+
+**Main Program Execution Flow**
+
 **Program Startup**
 
-1. User provides the name of the program to be debugged
-2. target.c will be compiled along with the build as the default debugging target
+1. User provides the debugged program name
+2. `target.c` is compiled along with the build as the default debug target
 
-**Subprocess Creation**
-    
-    Parent Process (lavender)
-    └─ fork()
-         ├─ Child Process → execv (CMake will automatically compile target.c as the default debugging target)
-         │       + PTRACE_TRACEME  ← Request tracking from the kernel
-         └─ Parent Process → Wait and control the child process
-         
+**Child Process Creation**
+
+```
+Parent Process (lavender)
+└─ fork()
+     ├─ Child Process → execv (CMake automatically compiles target.c as the default debug target)
+     │       + PTRACE_TRACEME  ← Requests the kernel to be traced by the parent
+     └─ Parent Process → Waits for and controls the child process
+```
+
 **Reading Memory Mapping**
 
-1. Read /proc/[PID]/maps
-2. Obtain maps and base_address
-
+1. Read `/proc/[PID]/maps`
+2. Obtain `maps` and `base_address`
 
 **ELF File Parsing**
 
-1. Parse ELF file with objdump
+1. Use `objdump` to parse `ELF` file
 2. Obtain function offsets
 
+**CLI Interactive Output**
 
-**CLI Interaction Output**
+1. `breakpoint` After setting breakpoint, immediately executes to the breakpoint
+2. Executes line by line; if encountering `call`, automatically queries the symbol table, looks up the jump function name, and sets breakpoint at the return location
 
-1. After setting a breakpoint, it immediately runs to the breakpoint
-2. Execute line by line, if encountering call, automatically query the symbol table, look up the jump function name, and set a breakpoint at the return location
+**Program End**
+After child process or user exits CLI, read the report left by child process, ensure to end child process, then end parent process
 
+# How You Can Expand
 
-**Program End** 
-After the subprocess or user exits the CLI, read the report left by the subprocess, ensure the subprocess ends, then end the parent process
-
-# How You Can Expand It
 **Current Limitations of This Project**
 
-1. Cannot directly modify the memory content of the target process
-2. The parent process currently shares the same terminal with the child process; if using step to enter input functions, it may cause abnormalities
-3. Uses parent process to start target subprocess, cannot attach to arbitrary processes
-4. Some functions may be missing or unstable
-
+- Cannot directly modify the memory content of the target process
+- Parent program currently shares the same terminal with child process; if using `step` to enter input function, may cause abnormality
+- Uses parent program to start target child process; cannot `attach` to any process
+- May have some functions missing or unstable
 
 **How to Expand**
 
-**Modify Child Process Memory Content** 
-Lavender currently can only read; you can add PTRACE_POKETEXT to modify memory
-**Attach to Arbitrary Programs**
-Lavender currently uses fork(); you can change to PTRACE_ATTACH
-**Custom CLI Interface**
-Commands in main.cpp are easy to replace and modify
-**Terminal Separation**
-Lavender currently has child and parent processes sharing the same terminal; you can use dup2 to separate them
+1. **Modify child process memory content**
+Lavender currently can only read; can add `PTRACE_POKETEXT` to change memory
+2. **Attach to any program**
+Lavender currently uses fork(); you can change to `PTRACE_ATTACH`
+3. **Custom CLI interface**
+Commands in main.cpp are easy to replace and change
+4. **Terminal separation**
+Lavender currently has child and parent sharing the same terminal; you can use `dup2` to separate
 
-# Quick Start
-**Environment Requirements**
+# Future Plans & Conclusion
 
-* Operating System Linux (Recommended Linux MINT)
-* Compilation Tools g++ (C++17), gcc
-* Build Tools CMake 3.16+
-* External Packages capstone, objdump
+Lavender dbg is a debugger built in a simple and understandable way; piecing together the entire debugger by hand, the understanding of the underlying logic can be said to be very profound. In the future when using `dbg`, I think there will be more insights.
 
-**File Setup**
-    
-    lavender dbg/
-    ├── CMakeLists.txt                 
-    └── src/
-        ├── main.cpp
-        ├── target.c 
-        └── ...
+During the development process, I used AI to help query syntax, debug, and think about the overall program architecture. But I understand the meaning of every line of code, and believe that collaborating with AI will be the trend in the future.
 
-Please set up the files as shown above, and install the following tools
-    
-**Installation Commands**
-    
-    sudo apt update
-    sudo apt install g++ gcc          
-    sudo apt install cmake            #cmake
-    sudo apt install binutils         #objdump
-    sudo apt install libcapstone-dev  #capstone
+I hope everyone can learn some underlying logic from this project, or become interested in underlying logic because of it, or even assemble a `dbg` by hand—of course, using AI to develop is also a good choice.
 
-Then create a build folder under lavender dbg
+**GitHub Link:**https://github.com/Benjamin-fuu-u/lavender-dbg
 
-    mkdir build
-    cd build
-    cmake .. # First time must set up CMake, cmake is in the parent directory
-    make     #Compile the program
-
-In the future, if modifying CMake, enter cmake. If changing program content, enter make
-
-    ./lavender ./target  
-    
-# Conclusion
-Lavender dbg is a debugger built in a simple and understandable way, piecing together the entire debugger by hand, which can be said to provide a very profound understanding of the underlying logic. In the future, when using dbg, I believe there will be more insights.
-
-During the development process, I used AI to help me query syntax, debug, and think about the overall program architecture. But I understand the meaning of every line of code, and I believe that collaborating with AI will be a future trend.
-
-I hope everyone can learn some underlying logic from this project, or become interested in underlying logic because of it, or even assemble a dbg by hand. Of course, using AI for development is also a good choice.
-
-**GitHub Link:** 
-https://github.com/Benjamin-fuu-u/lavender-dbg
-
-If you like my project or my ideas, you can give me a star, that would be a great encouragement for me!
+If you like my project or my ideas, you can give me a star; that would be a great encouragement to me!
