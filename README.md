@@ -2,9 +2,16 @@
 ![Lavender Cover](https://hackmd.io/_uploads/HyjEgNmabe.png)
 
 **Table of Contents**
-
+* Introduction
+* Quick Start
+* How to Use
+* Core Design and Code Analysis
+* Actual Execution Demo
+* Architecture Overview
+* How You Can Expand
+* Future Plans & Conclusion
+  
 # Introduction
-
 **What is this**
 Can high school students develop a debugger?
 Lavender dbg is my answer. It is a basic debugger, running on Linux and implemented in C++, aiming to create a debugger that is easy to read and expand.
