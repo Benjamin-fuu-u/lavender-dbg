@@ -19,6 +19,13 @@ Lavender dbg is my answer. It is a basic debugger, running on Linux and implemen
 In addition, Lavender's main function is to help users analyze the logic behind the program, including maps output, ELF file parsing, and assembly output. For details, please refer to: **Core Features**
 
 **GitHub Link:**https://github.com/Benjamin-fuu-u/lavender-dbg
+**You can also see it on notion :** 
+
+[https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2#34c01dbb430480c0a33dd079e71bdb6c](https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2?pvs=21)
+
+Chinese (繁體中文) notion page
+
+[https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe](https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe?pvs=21)
 
 **This project was assisted by AI during production, and the author is not a native English speaker, so the writer ask AI to assist in translation.**
 
