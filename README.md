@@ -24,7 +24,7 @@ In addition, Lavender's main function is to help users analyze the logic behind 
 
 [https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2#34c01dbb430480c0a33dd079e71bdb6c](https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2?pvs=21)
 
-Chinese (繁體中文) notion page
+**Chinese (繁體中文) notion page**
 
 [https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe](https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe?pvs=21)
 
