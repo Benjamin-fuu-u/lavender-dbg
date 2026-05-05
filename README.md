@@ -1,47 +1,51 @@
 # Lavender dbg
+
 ![Lavender Cover](https://hackmd.io/_uploads/HyjEgNmabe.png)
 
 **Table of Contents**
 * Introduction
-* Quick Start
-* How to Use
+* Environment Requirements
+* Core Features
 * Core Design and Code Analysis
 * Actual Execution Demo
 * Architecture Overview
 * How You Can Expand
 * Future Plans & Conclusion
-  
+
 # Introduction
+
 **What is this**
 Can high school students develop a debugger?
-Lavender dbg is my answer. It is a basic debugger, running on Linux and implemented in C++, aiming to create a debugger that is easy to read and expand.
+Lavender dbg is my answer.
+
+It is a basic debugger, running on Linux and implemented in C++, aiming to create a debugger that is easy to read and expand.
 
 In addition, Lavender's main function is to help users analyze the logic behind the program, including maps output, ELF file parsing, and assembly output. For details, please refer to: **Core Features**
 
-**GitHub Link:**https://github.com/Benjamin-fuu-u/lavender-dbg
+**GitHub Link :** [https://github.com/Benjamin-fuu-u/lavender-dbg](https://github.com/Benjamin-fuu-u/lavender-dbg)
 
 **You can also see it on notion :** 
 
-[https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2#34c01dbb430480c0a33dd079e71bdb6c](https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2?pvs=21)
+[https://delirious-rise-a64.notion.site/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2](https://www.notion.so/Lavender-dbg-34c01dbb4304802e9013d2ad249e60e2?pvs=21)
 
-**Chinese (繁體中文) notion page**
+Chinese (繁體中文) notion page
 
-[https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe](https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe?pvs=21)
+[https://delirious-rise-a64.notion.site/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe](https://www.notion.so/Lavender-dbg-34901dbb430480f1a237c7ad881f9cbe?pvs=21)
 
-**This project was assisted by AI during production, and the author is not a native English speaker, so the writer ask AI to assist in translation.**
+**This project was assisted by AI during production, and the author is not a native English speaker, I ask AI to assist in translation.**
 
 **Suitable for**
-
-**Not suitable for**
-
 - Beginners in system programming
-
-- Users who need professional features
 
 - Users who want to understand debugger principles
 
-- Penetration testing or CTF competition environments
 - People curious about underlying principles
+
+**Not suitable for**
+
+- Users who need professional features
+
+- Penetration testing or CTF competition environments
 
 **Highlights**
 
@@ -60,7 +64,7 @@ In addition, Lavender's main function is to help users analyze the logic behind 
 
 **File Setup**
 
-```
+```plaintext
 lavender dbg/
 ├── CMakeLists.txt
 └── src/
@@ -73,7 +77,7 @@ Please set up the files as shown above and install the following tools.
 
 **Installation Commands**
 
-```
+```shell
 sudo apt update
 sudo apt install g++ gcc
 sudo apt install cmake            #cmake
@@ -83,7 +87,7 @@ sudo apt install libcapstone-dev  #capstone
 
 Then create a `build` folder under lavender dbg
 
-```
+```shell
 mkdir build
 cd build
 cmake ..  # First time must configure CMake, cmake is in the parent directory
@@ -94,7 +98,7 @@ make      #compile program
 
 Run
 
-```
+```shell
 ./lavender ./target
 ```
 
@@ -105,7 +109,7 @@ Lavender dbg is a debugger used to help users understand the underlying principl
 At the beginning of the program, it prints the `maps` of the child process just started; you can also modify the settings to view during program runtime.
 **2. Function address output**
 The program automatically prints all internal, external, and system functions when the child process starts, but does not include dynamic link libraries like `libc.so`.
-**3. CLI output; this program provides two functions: setting breakpoints and single-step executionBreakpoint setting**
+**3. CLI output; this program provides two functions: setting breakpoints and single-step**
 
 **breakpoint** 
 Can use hexadecimal or function names; after setting a breakpoint, it automatically goes to the breakpoint and displays `stack`, `register`, and the next five lines of assembly.
@@ -116,6 +120,56 @@ Can customize the number of steps, and automatically skips when encountering `ca
 **You can refer to the actual execution demo**
 
 **You can also write your own custom functions**
+
+# Actual Execution Demo
+
+**Maps Output**
+
+![Maps Output](https://hackmd.io/_uploads/rk4BuP1pWg.png)
+
+From the image above, you can see the maps, stack, vdso, code, and other sections at the beginning of program startup.
+
+**Section Types**
+
+| Item | Description |
+| --- | --- |
+| **code** | Mostly code |
+| **stack** | Stack |
+| **vdso** | Shared block, providing commonly used modules directly to the program |
+| **heap** | Heap |
+| **DATA** | Mostly storing data |
+| **libc.so** | Standard C library |
+
+**Breakpoint Output**
+
+![Breakpoint Main](https://hackmd.io/_uploads/rJTr_PJa-g.png)
+
+This is the information displayed by Lavender when setting a breakpoint at main, including the next five lines of code (Current and next five instruction), registers, stack, and other information.
+
+**Register Types**
+
+| Register | Description | Register | Description |
+| --- | --- | --- | --- |
+| **RIP** | Current instruction position | **RDI** | Register 1 |
+| **RSP** | Stack top | **RSI** | Register 2 |
+| **RBP** | Stack bottom | **RDX** | Register 3 |
+| **RAX** | Return value | **ZF** | Judgment flag |
+
+**Single Step Output**
+
+![Call Puts Print Hello](https://hackmd.io/_uploads/SkzLuDJTZg.png)
+
+From the image above, you can see the machine code line by line; each line of machine code displays registers, with changes highlighted. If it is a call, it displays the called function name (but if it is libc etc., it will not find it, will not display function name).
+
+**Also Supports Child Process Input**
+
+![Lavender Input Name](https://hackmd.io/_uploads/SyJaHDzTWx.png)
+
+This is the situation when the child process handled by Lavender has input; you can see inputting the name "lavender".
+
+![Lavender Output Hello, Name](https://hackmd.io/_uploads/Hy_TSvf6We.png)
+
+You can see outputting the name "lavender".
 
 # Core Design and Code Analysis
 
@@ -228,62 +282,137 @@ if (isCall)
     return run_to_breakpoint();
 }
 ```
+<details>
+<summary><strong>ptrace — common requests</strong></summary>
 
-# Actual Execution Demo
+<br>
 
-**Maps Output**
+Signature: `ptrace(request, pid, addr, data)` — if it is oneself, pid can be ignored (fill in `0`)
 
-![Maps Output](https://hackmd.io/_uploads/rk4BuP1pWg.png)
+| Request | Description |
+|---|---|
+| `PTRACE_TRACEME` | Request to be traced by the kernel |
+| `PTRACE_CONT` | Execute until encountering a signal (`SIGNAL`) |
+| `PTRACE_PEEKTEXT` | Read memory |
+| `PTRACE_GETREGS` | Obtain registers |
+| `PTRACE_SETREGS` | Modify registers |
+| `PTRACE_SINGLESTEP` | Single-step execution |
+| `PTRACE_KILL` | Force end child process |
 
-From the image above, you can see the maps, stack, vdso, code, and other sections at the beginning of program startup.
+</details>
 
-**Section Types**
+---
 
-| Item | Description |
-| --- | --- |
-| **code** | Mostly code |
-| **stack** | Stack |
-| **vdso** | Shared block, providing commonly used modules directly to the program |
-| **heap** | Heap |
-| **DATA** | Mostly storing data |
-| **libc\.so** | Standard C library |
+<details>
+<summary><strong>capstone — commands</strong></summary>
 
-**Breakpoint Output**
+<br>
 
-![Breakpoint Main](https://hackmd.io/_uploads/rJTr_PJa-g.png)
+| Function | Description |
+|---|---|
+| `cs_open(CS_ARCH_X86, CS_MODE_64, &handle)` | Initialize capstone, specify X86-64 instructions |
+| `cs_disasm(handle, buf, sizeof(buf), rip, 1, &insn)` | Convert machine code (existing in `buf`) to assembly language |
+| `cs_free(insn, count)` | Release memory allocated for `insn` |
+| `cs_close(&handle)` | Close and release capstone handle |
+| `X86_INS_CALL` | Used to determine if the current is a `call` instruction |
 
-This is the information displayed by Lavender when setting a breakpoint at main, including the next five lines of code (Current and next five instruction), registers, stack, and other information.
+</details>
 
-**Register Types**
+---
 
-| Register | Description | Register | Description |
-| --- | --- | --- | --- |
-| **RIP** | Current instruction position | **RDI** | Register 1 |
-| **RSP** | Stack top | **RSI** | Register 2 |
-| **RBP** | Stack bottom | **RDX** | Register 3 |
-| **RAX** | Return value | **ZF** | Judgment flag |
+<details>
+<summary><strong>Signal control (waitpid)</strong></summary>
 
-**Single Step Output**
+<br>
 
-![Call Puts Print Hello](https://hackmd.io/_uploads/SkzLuDJTZg.png)
+| Macro | Description |
+|---|---|
+| `WIFSTOPPED(status)` | Confirm whether the child process entered pause state |
+| `WIFSIGNALED(status)` | Confirm whether the child process ended by signal |
+| `WTERMSIG(status)` | Which signal ended the child process |
+| `WIFEXITED(status)` | Normal exit |
 
-From the image above, you can see the machine code line by line; each line of machine code displays registers, with changes highlighted. If it is a call, it displays the called function name (but if it is libc etc., it will not find it, will not display function name).
+</details>
 
-**Also Supports Child Process Input**
+---
 
-![Lavender Input Name](https://hackmd.io/_uploads/SyJaHDzTWx.png)
+<details>
+<summary><strong>Printed maps fields</strong></summary>
 
-This is the situation when the child process handled by Lavender has input; you can see inputting the name "lavender".
+<br>
 
-![Lavender Output Hello, Name](https://hackmd.io/_uploads/Hy_TSvf6We.png)
+| Field | Description |
+|---|---|
+| `start_address` | Start address |
+| `end_address` | End address |
+| `permissions` | Permissions |
+| `offset` | Offset |
+| `pathname` | Path |
 
-You can see outputting the name "lavender".
+</details>
+
+---
+
+<details>
+<summary><strong>objdump commands</strong></summary>
+
+<br>
+
+| Command | Description |
+|---|---|
+| `objdump -t -- <path> 2>/dev/null` | Grab symbols in `.text` |
+| `objdump -d -- <path> 2>/dev/null` | Grab external `@plt` functions |
+
+</details>
+
+---
+
+<details>
+<summary><strong>Important included header files</strong></summary>
+
+<br>
+
+### Standard Library
+
+| Header | Provides |
+|---|---|
+| `<iostream>` | `cout`, `cerr` |
+| `<iomanip>` | `setw`, `setfill`, `hex`, `dec` |
+| `<cstdlib>` | `exit()` |
+| `<cerrno>` | `errno` |
+| `<cstring>` | `strerror`, `memcpy`, `strstr` |
+| `<vector>` | `vector` |
+| `<string>` | `string` |
+| `<sstream>` | `istringstream`, `stringstream` |
+| `<fstream>` | file stream |
+| `<cstdint>` | `uint64_t` |
+| `<cstdio>` | `FILE*`, `popen`, `pclose`, `fgets` |
+| `<algorithm>` | `min`, `sort()` |
+| `<stdio.h>` | `printf` |
+
+### System Call Related Libraries
+
+| Header | Provides |
+|---|---|
+| `<unistd.h>` | `fork()`, `execv()` |
+| `<sys/types.h>` | `pid_t` |
+| `<sys/wait.h>` | `waitpid`, `WIF macros` |
+| `<sys/ptrace.h>` | `ptrace` |
+| `<sys/user.h>` | `user_regs_struct` |
+
+### Third-party Packages
+
+| Header | Provides |
+|---|---|
+| `<capstone/capstone.h>` | `capstone` disassembler |
+
+</details>
 
 # Architecture Overview
 
 **Project Architecture Diagram**
 
-```
+```plaintext
 lavender-dbg/
 ├── CMakeLists.txt
 └── src/
@@ -314,7 +443,7 @@ lavender-dbg/
 
 **Child Process Creation**
 
-```
+```plaintext
 Parent Process (lavender)
 └─ fork()
      ├─ Child Process → execv (CMake automatically compiles target.c as the default debug target)
@@ -366,8 +495,13 @@ Lavender dbg is a debugger built in a simple and understandable way; piecing tog
 
 During the development process, I used AI to help query syntax, debug, and think about the overall program architecture. But I understand the meaning of every line of code, and believe that collaborating with AI will be the trend in the future.
 
-I hope everyone can learn some underlying logic from this project, or become interested in underlying logic because of it, or even assemble a `dbg` by hand—of course, using AI to develop is also a good choice.
+I hope everyone can learn some underlying logic from this project, or become interested in underlying logic because of it, or even assemble a dbg by hand—of course, using AI to develop is also a good choice.
 
-**GitHub Link:**https://github.com/Benjamin-fuu-u/lavender-dbg
+**GitHub Link:**[https://github.com/Benjamin-fuu-u/lavender-dbg](https://github.com/Benjamin-fuu-u/lavender-dbg)
+
+If you like my project or my ideas, you can give me a star; that would be a great encouragement to me!
+I hope everyone can learn some underlying logic from this project, or become interested in underlying logic because of it, or even assemble a dbg by hand—of course, using AI to develop is also a good choice.
+
+**GitHub Link:**[https://github.com/Benjamin-fuu-u/lavender-dbg](https://github.com/Benjamin-fuu-u/lavender-dbg)
 
 If you like my project or my ideas, you can give me a star; that would be a great encouragement to me!
